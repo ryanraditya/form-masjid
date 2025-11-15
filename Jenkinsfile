@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -10,11 +11,12 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Building project (HTML)...'
-                sh 'test -f index.html'
-                sh 'mkdir -p build'
-                sh 'cp -r * build/'
-                echo 'Build step completed.'
+                echo 'Building project...'
+                sh '''
+                    rm -rf build
+                    mkdir build
+                    cp index.html build/
+                '''
             }
         }
 
@@ -22,17 +24,19 @@ pipeline {
             steps {
                 echo 'Testing HTML...'
                 sh 'grep -iq "<html" index.html'
-                echo 'Test Passed: HTML structure is valid.'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying to Nginx container...'
+                echo 'Deploying to Nginx...'
                 sh '''
+                    # Copy build result to deploy folder
+                    rm -rf /tmp/deploy-form-masjid
                     mkdir -p /tmp/deploy-form-masjid
-                    cp -r * /tmp/deploy-form-masjid/
+                    cp -r build/* /tmp/deploy-form-masjid/
 
+                    # Restart container
                     docker stop form-masjid || true
                     docker rm form-masjid || true
 
@@ -40,7 +44,6 @@ pipeline {
                         -v /tmp/deploy-form-masjid:/usr/share/nginx/html \
                         nginx:alpine
                 '''
-                echo 'Deploy step completed.'
             }
         }
     }
