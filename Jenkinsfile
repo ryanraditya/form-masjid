@@ -50,7 +50,7 @@ pipeline {
                     echo "jalankan container baru..."
                     docker run -d --name form-masjid \
                         -p 8085:80 \
-                        -v $WORKSPACE:/usr/share/nginx/html \
+                        -v ${WORKSPACE}:/usr/share/nginx/html \
                         nginx
 
                     echo "berhasil deploy"
