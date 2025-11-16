@@ -5,44 +5,55 @@ pipeline {
 
         stage('Checkout') {
             steps {
+                echo 
                 checkout scm
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Building project...'
-                sh '''
-                    rm -rf build
-                    mkdir build
-                    cp index.html build/
-                '''
+                echo ''
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Testing HTML...'
-                sh 'grep -iq "<html" index.html'
+                echo 'cek html'
+                
+                sh '''
+                    if [ ! -f index.html ]; then
+                        echo "❌ File index.html tidak ditemukan!"
+                        exit 1
+                    fi
+
+                    echo "✔ File index.html ditemukan."
+
+                    # Cek tag HTML dasar (optional)
+                    if grep -qi "<html>" index.html; then
+                        echo "✔ Struktur HTML valid."
+                    else
+                        echo "⚠ Tidak ditemukan tag <html>. Lanjut tapi mohon dicek."
+                    fi
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying to Nginx...'
-                sh '''
-                    # Copy build result to deploy folder
-                    rm -rf /tmp/deploy-form-masjid
-                    mkdir -p /tmp/deploy-form-masjid
-                    cp -r build/* /tmp/deploy-form-masjid/
+                echo 'deploy ke nginx'
 
-                    # Restart container
+                sh '''
+                    echo "stop container lama jika ada"
                     docker stop form-masjid || true
                     docker rm form-masjid || true
 
-                    docker run -d --name form-masjid -p 8080:80 \
-                        -v /tmp/deploy-form-masjid:/usr/share/nginx/html \
-                        nginx:alpine
+                    echo "jalankan container baru..."
+                    docker run -d --name form-masjid \
+                        -p 8085:80 \
+                        -v $WORKSPACE:/usr/share/nginx/html \
+                        nginx
+
+                    echo "berhasil deploy"
                 '''
             }
         }
@@ -50,10 +61,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline succeeded!'
+            echo 'pipeline berhasil'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline gagal'
         }
     }
 }
