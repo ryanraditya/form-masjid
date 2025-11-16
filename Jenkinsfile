@@ -5,14 +5,14 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo 
+                echo 'cekout kode'
                 checkout scm
             }
         }
 
         stage('Build') {
             steps {
-                echo ''
+                echo 'build kode tapi ini html'
             }
         }
 
