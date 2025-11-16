@@ -28,7 +28,6 @@ pipeline {
 
                     echo "✔ File index.html ditemukan."
 
-                    # Cek tag HTML dasar (optional)
                     if grep -qi "<html>" index.html; then
                         echo "✔ Struktur HTML valid."
                     else
@@ -46,14 +45,12 @@ pipeline {
                     echo "stop container lama jika ada"
                     docker stop form-masjid || true
                     docker rm form-masjid || true
-                    
-                    echo "WORKSPACE IS: ${WORKSPACE}"
-                    ls -l ${WORKSPACE}
 
                     echo "jalankan container baru..."
+
                     docker run -d --name form-masjid \
                         -p 8085:80 \
-                        -v ${WORKSPACE}:/usr/share/nginx/html \
+                        -v "C:/jenkins_workspace/workspace/prakrik1:/usr/share/nginx/html" \
                         nginx
 
                     echo "berhasil deploy"
