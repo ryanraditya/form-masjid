@@ -46,6 +46,9 @@ pipeline {
                     echo "stop container lama jika ada"
                     docker stop form-masjid || true
                     docker rm form-masjid || true
+                    
+                    echo "WORKSPACE IS: ${WORKSPACE}"
+                    ls -l ${WORKSPACE}
 
                     echo "jalankan container baru..."
                     docker run -d --name form-masjid \
